@@ -5,6 +5,9 @@ except ImportError:
 
 from typing import Optional
 from trame.widgets import vuetify
+from pyvista.plotting.colors import hexcolors
+import matplotlib.pyplot as plt
+from ..pv_pipeline import PVCB
 
 
 def standard_tree(actors: list, actor_names: list, base_id: int = 0):
@@ -82,13 +85,128 @@ def card(title, actor_name):
     return content
 
 
+def standard_card_components(CBinCard, actor_name: str, default_values: dict):
+    with vuetify.VRow(classes="pt-2", dense=True):
+        # Style
+        with vuetify.VCol(cols="6"):
+            vuetify.VSelect(
+                label="Style",
+                v_model=(CBinCard.STYLE, default_values["style"]),
+                items=(f"styles", ["surface", "points", "wireframe"]),
+                hide_details=True,
+                dense=True,
+                outlined=True,
+                classes="pt-1",
+            )
+        # Color
+        with vuetify.VCol(cols="6"):
+            vuetify.VSelect(
+                label="Color",
+                v_model=(CBinCard.COLOR, default_values["color"]),
+                items=(f"hexcolors", list(hexcolors.keys())),
+                hide_details=True,
+                dense=True,
+                outlined=True,
+                classes="pt-1",
+            )
+
+    # Opacity
+    vuetify.VSlider(
+        v_model=(CBinCard.OPACITY, default_values["opacity"]),
+        min=0,
+        max=1,
+        step=0.01,
+        label="Opacity",
+        classes="mt-1",
+        hide_details=True,
+        dense=True,
+    )
+    # Ambient
+    vuetify.VSlider(
+        v_model=(CBinCard.AMBIENT, default_values["ambient"]),
+        min=0,
+        max=1,
+        step=0.01,
+        label="Ambient",
+        classes="mt-1",
+        hide_details=True,
+        dense=True,
+    )
+
+
+def standard_pc_card(CBinCard, actor_name: str, card_title: str, default_values: Optional[dict]=None):
+    _default_values = {
+        "scalars": None,
+        "point_size": 5,
+        "style": "points",
+        "color": "gainsboro",
+        "cmap": "rainbow",
+        "opacity": 1,
+        "ambient": 0.2,
+    }
+    if not (default_values is None):
+        _default_values.update(default_values)
+
+    with card(title=card_title, actor_name=actor_name):
+        with vuetify.VRow(classes="pt-2", dense=True):
+            """ with vuetify.VCol(cols="6"):
+                vuetify.VSelect(
+                    label="Scalars",
+                    v_model=(f"{actor_name}_scalars", _default_values["scalars"]),
+                    items=("scalars", ["cell_size", "cell_radius", None]),
+                    hide_details=True,
+                    dense=True,
+                    outlined=True,
+                    classes="pt-1 ml-2",
+                    style="max-width: 250px",
+                )"""
+            with vuetify.VCol(cols="6"):
+                vuetify.VSelect(
+                    label="Colormap",
+                    v_model=(CBinCard.COLORMAP, _default_values["cmap"]),
+                    items=("colormaps", plt.colormaps()),
+                    hide_details=True,
+                    dense=True,
+                    outlined=True,
+                    classes="pt-1 ml-2",
+                    style="max-width: 250px",
+                )
+
+        vuetify.VSlider(
+            v_model=(CBinCard.POINTSIZE, _default_values["point_size"]),
+            min=0,
+            max=20,
+            step=1,
+            label="Point Size",
+            classes="mt-1",
+            hide_details=True,
+            dense=True,
+        )
+
+        standard_card_components(CBinCard=CBinCard, actor_name=actor_name, default_values=_default_values)
+
+
+def standard_mesh_card(CBinCard, actor_name: str, card_title: str, default_values: Optional[dict]=None):
+    _default_values = {
+        "style": "surface",
+        "color": "gainsboro",
+        "opacity": 0.5,
+        "ambient": 0.2,
+    }
+    if not (default_values is None):
+        _default_values.update(default_values)
+
+    with card(title=card_title, actor_name=actor_name):
+        standard_card_components(CBinCard=CBinCard, actor_name=actor_name, default_values=_default_values)
+
+
 # -----------------------------------------------------------------------------
 # GUI-standard Drawer
 # -----------------------------------------------------------------------------
 
 
 def ui_standard_drawer(
-    server, actors: list, actor_names: list, tree: Optional[list] = None, **kwargs
+    server, actors: list, actor_names: list, tree: Optional[list] = None,
 ):
     """
     Generate standard Drawer for Spateo UI.
@@ -100,3 +218,9 @@ def ui_standard_drawer(
 
     pipeline(server=server, actors=actors, actor_names=actor_names, tree=tree)
     vuetify.VDivider(classes="mb-2")
+    for actor, actor_name in zip(actors, actor_names):
+        CBinCard = PVCB(server=server, actor=actor, actor_name=actor_name)
+        if str(actor_name).startswith("PC"):
+            standard_pc_card(CBinCard, actor_name=actor_name, card_title=actor_name)
+        if str(actor_name).startswith("Mesh"):
+            standard_mesh_card(CBinCard, actor_name=actor_name, card_title=actor_name)

@@ -35,6 +35,8 @@ def standard_html(
     state, ctrl = server.state, server.controller
     state.trame__title = ui_name
     state.trame__favicon = ui_icon
+    state.setdefault("active_ui", None)
+    # ctrl.on_server_ready.add(ctrl.view_update)
 
     # GUI
     ui_standard_layout = ui_layout(

@@ -38,8 +38,9 @@ def create_plotter(
 def add_single_model(
     plotter: Plotter,
     model: Union[PolyData, UnstructuredGrid],
-    key: str = None,
-    colormap: Optional[str] = None,
+    key: Optional[str] = None,
+    cmap: Optional[str] = "rainbow",
+    color: Optional[str] = "gainsboro",
     ambient: float = 0.2,
     opacity: float = 1.0,
     model_style: Literal["points", "surface", "wireframe"] = "surface",
@@ -51,8 +52,8 @@ def add_single_model(
         plotter: The plotting object to display pyvista/vtk model.
         model: A reconstructed model.
         key: The key under which are the labels.
-        colormap: Name of the Matplotlib colormap to use when mapping the scalars.
-                  When the colormap is None, use {key}_rgba to map the scalars, otherwise use the colormap to map scalars.
+        cmap: Name of the Matplotlib colormap to use when mapping the model.
+        color: Name of the Matplotlib color to use when mapping the model.
         ambient: When lighting is enabled, this is the amount of light in the range of 0 to 1 (default 0.0) that reaches
                  the actor when not directed at the light source emitted from the viewer.
         opacity: Opacity of the model.
@@ -76,6 +77,7 @@ def add_single_model(
     else:
         render_spheres, render_tubes, smooth_shading = False, False, True
     mesh_kwargs = dict(
+        scalars=key if key in model.array_names else None,
         style=model_style,
         render_points_as_spheres=render_spheres,
         render_lines_as_tubes=render_tubes,
@@ -85,25 +87,8 @@ def add_single_model(
         opacity=opacity,
         smooth_shading=smooth_shading,
         show_scalar_bar=False,
+        cmap= cmap,
+        color=color,
     )
-
-    if colormap is None:
-        added_kwargs = dict(
-            scalars=f"{key}_rgba"
-            if key in model.array_names
-            else model.active_scalars_name,
-            rgba=True,
-        )
-    else:
-        added_kwargs = (
-            dict(
-                scalars=key if key in model.array_names else model.active_scalars_name,
-                cmap=colormap,
-            )
-            if colormap in list(mpl.colormaps())
-            else dict(color=colormap)
-        )
-
-    mesh_kwargs.update(added_kwargs)
     actor = plotter.add_mesh(model, **mesh_kwargs)
     return actor
