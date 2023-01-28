@@ -146,7 +146,7 @@ def standard_pc_card(
         "point_size": 5,
         "style": "points",
         "color": "gainsboro",
-        "cmap": "rainbow",
+        "cmap": "Purples",
         "opacity": 1,
         "ambient": 0.2,
     }
@@ -157,7 +157,7 @@ def standard_pc_card(
         with vuetify.VRow(classes="pt-2", dense=True):
             with vuetify.VCol(cols="6"):
                 vuetify.VTextField(
-                    label="Genes",
+                    label="Scalars",
                     v_model=(CBinCard.SCALARS, _default_values["scalars"]),
                     type="str",
                     hide_details=True,
