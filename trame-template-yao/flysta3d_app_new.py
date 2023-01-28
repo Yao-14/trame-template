@@ -2,6 +2,7 @@
 # Pyvista Pipeline
 # -----------------------------------------------------------------------------
 from stviewer import drosophila_E7_9h_dataset, drosophila_plotter, drosophila_tree
+
 (
     adata,
     pc_models,
@@ -13,7 +14,10 @@ from stviewer import drosophila_E7_9h_dataset, drosophila_plotter, drosophila_tr
 pc_models_cmaps = []
 mesh_models_cmaps = []
 plotter, pc_actors, mesh_actors = drosophila_plotter(
-    pc_models=pc_models, pc_models_cmaps=pc_models_cmaps, mesh_models=mesh_models, mesh_models_cmaps=mesh_models_cmaps
+    pc_models=pc_models,
+    pc_models_cmaps=pc_models_cmaps,
+    mesh_models=mesh_models,
+    mesh_models_cmaps=mesh_models_cmaps,
 )
 actors, actor_names, tree = drosophila_tree(
     pc_actors=pc_actors,
@@ -25,7 +29,8 @@ actors, actor_names, tree = drosophila_tree(
 # -----------------------------------------------------------------------------
 # Server
 # -----------------------------------------------------------------------------
-from stviewer import get_trame_server, asset_manager
+from stviewer import asset_manager, get_trame_server
+
 server = get_trame_server(name=None)
 state, ctrl = server.state, server.controller
 state.trame__title = "Flysta3D"
@@ -36,10 +41,15 @@ ctrl.on_server_ready.add(ctrl.view_update)
 # -----------------------------------------------------------------------------
 # Layouts
 # -----------------------------------------------------------------------------
-from stviewer import ui_title, ui_layout, ui_standard_container, ui_standard_toolbar, ui_standard_drawer
-ui_standard_layout = ui_layout(
-    server=server, template_name="main", drawer_width=350
+from stviewer import (
+    ui_layout,
+    ui_standard_container,
+    ui_standard_drawer,
+    ui_standard_toolbar,
+    ui_title,
 )
+
+ui_standard_layout = ui_layout(server=server, template_name="main", drawer_width=350)
 with ui_standard_layout as layout:
     layout.icon.click = ctrl.view_reset_camera
     ui_title(layout=layout, title_name="Flysta3D", title_icon=asset_manager.spateo_icon)
@@ -56,6 +66,7 @@ with ui_standard_layout as layout:
     with layout.drawer as dr:
         actor_name1 = "PC_Embryo"
         actor1 = actors[0]
+
         @state.change(f"{actor_name1}_opacity")
         def opacity(opacity=1.0, **kwargs):
             actor1.prop.opacity = opacity
@@ -71,20 +82,18 @@ with ui_standard_layout as layout:
             actor1.prop.point_size = point_size
             ctrl.view_update()
 
-
         actor_name2 = "Mesh_Embryo"
         actor2 = actors[1]
+
         @state.change(f"{actor_name2}_opacity")
         def opacity(opacity=1.0, **kwargs):
             actor2.prop.opacity = opacity
             ctrl.view_update()
 
-
         @state.change(f"{actor_name2}_ambient")
         def ambient(ambient=0.2, **kwargs):
             actor2.prop.ambient = ambient
             ctrl.view_update()
-
 
         @state.change(f"{actor_name2}_point_size")
         def point_size(point_size=5.0, **kwargs):
@@ -108,9 +117,3 @@ with ui_standard_layout as layout:
 
 if __name__ == "__main__":
     server.start()
-
-
-
-
-
-

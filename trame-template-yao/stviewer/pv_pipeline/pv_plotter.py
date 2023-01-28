@@ -87,7 +87,7 @@ def add_single_model(
         opacity=opacity,
         smooth_shading=smooth_shading,
         show_scalar_bar=False,
-        cmap= cmap,
+        cmap=cmap,
         color=color,
     )
     actor = plotter.add_mesh(model, **mesh_kwargs)

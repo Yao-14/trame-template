@@ -30,7 +30,11 @@ def drosophila_E7_9h_dataset(
         "E7-9h_aligned_pc_model_midgut.vtk",
     ]
     pc_models = [pv.read(filename=os.path.join(dir_path, f)) for f in pc_model_files]
-    pc_models_names = ["PC_Embryo", "PC_CNS", "PC_Midgut"] # Cannot contain `-` and ` `.
+    pc_models_names = [
+        "PC_Embryo",
+        "PC_CNS",
+        "PC_Midgut",
+    ]  # Cannot contain `-` and ` `.
 
     # Generate mesh models
     mesh_model_files = [
@@ -41,7 +45,11 @@ def drosophila_E7_9h_dataset(
     mesh_models = [
         pv.read(filename=os.path.join(dir_path, f)) for f in mesh_model_files
     ]
-    mesh_models_names = ["Mesh_Embryo", "Mesh_CNS", "Mesh_Midgut"] # Cannot contain `-` and ` `.
+    mesh_models_names = [
+        "Mesh_Embryo",
+        "Mesh_CNS",
+        "Mesh_Midgut",
+    ]  # Cannot contain `-` and ` `.
     return adata, pc_models, pc_models_names, mesh_models, mesh_models_names
 
 
@@ -85,7 +93,8 @@ def drosophila_plotter(
     if not (mesh_added_kwargs is None):
         mesh_kwargs.update(mesh_added_kwargs)
     mesh_actors = [
-        add_single_model(plotter=plotter, model=mesh, **mesh_kwargs) for mesh in mesh_models
+        add_single_model(plotter=plotter, model=mesh, **mesh_kwargs)
+        for mesh in mesh_models
     ]
     return plotter, pc_actors, mesh_actors
 
@@ -119,7 +128,10 @@ def flysta3d_html(ui_name: str = "Flysta3D", **kwargs):
     pc_models_cmaps = []
     mesh_models_cmaps = []
     plotter, pc_actors, mesh_actors = drosophila_plotter(
-        pc_models=pc_models, pc_models_cmaps=pc_models_cmaps, mesh_models=mesh_models, mesh_models_cmaps=mesh_models_cmaps
+        pc_models=pc_models,
+        pc_models_cmaps=pc_models_cmaps,
+        mesh_models=mesh_models,
+        mesh_models_cmaps=mesh_models_cmaps,
     )
     actors, actor_names, tree = drosophila_tree(
         pc_actors=pc_actors,

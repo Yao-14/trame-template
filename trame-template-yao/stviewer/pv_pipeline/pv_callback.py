@@ -1,7 +1,8 @@
 import io
-import pyvista as pv
+
 import numpy as np
 
+import pyvista as pv
 
 # -----------------------------------------------------------------------------
 # Common Callback-ToolBar&Container
@@ -272,9 +273,13 @@ class PVCB:
             _adata = _adata[_obs_index, :]
 
             if self._state[self.SCALARS] in set(_adata.obs_keys()):
-                array = np.asarray(_adata.obs[self._state[self.SCALARS]].values).flatten()
+                array = np.asarray(
+                    _adata.obs[self._state[self.SCALARS]].values
+                ).flatten()
             elif self._state[self.SCALARS] in set(_adata.var_names.tolist()):
-                array = np.asarray(_adata[:, self._state[self.SCALARS]].X.sum(axis=1).flatten())
+                array = np.asarray(
+                    _adata[:, self._state[self.SCALARS]].X.sum(axis=1).flatten()
+                )
                 print(array)
             else:
                 array = np.ones(shape=(len(_obs_index),))
@@ -321,5 +326,3 @@ class PVCB:
     def on_as_tubes_change(self, **kwargs):
         self._actor.prop.render_lines_as_tubes = self._state[self.ASTUBES]
         self._ctrl.view_update()
-
-

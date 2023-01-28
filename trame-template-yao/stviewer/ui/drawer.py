@@ -4,11 +4,15 @@ except ImportError:
     from typing_extensions import Literal
 
 from typing import Optional
-from trame.widgets import vuetify
-from pyvista.plotting.colors import hexcolors
+
 import matplotlib.pyplot as plt
-from ..pv_pipeline import PVCB
 from anndata import AnnData
+from trame.widgets import vuetify
+
+from pyvista.plotting.colors import hexcolors
+
+from ..pv_pipeline import PVCB
+
 
 def standard_tree(actors: list, actor_names: list, base_id: int = 0):
     for i, actor in enumerate(actors):
@@ -134,7 +138,9 @@ def standard_card_components(CBinCard, default_values: dict):
     )
 
 
-def standard_pc_card(CBinCard, actor_name: str, card_title: str, default_values: Optional[dict]=None):
+def standard_pc_card(
+    CBinCard, actor_name: str, card_title: str, default_values: Optional[dict] = None
+):
     _default_values = {
         "scalars": "None",
         "point_size": 5,
@@ -184,7 +190,9 @@ def standard_pc_card(CBinCard, actor_name: str, card_title: str, default_values:
         )
 
 
-def standard_mesh_card(CBinCard, actor_name: str, card_title: str, default_values: Optional[dict]=None):
+def standard_mesh_card(
+    CBinCard, actor_name: str, card_title: str, default_values: Optional[dict] = None
+):
     _default_values = {
         "style": "surface",
         "color": "gainsboro",
@@ -204,7 +212,11 @@ def standard_mesh_card(CBinCard, actor_name: str, card_title: str, default_value
 
 
 def ui_standard_drawer(
-    server,  adata: AnnData, actors: list, actor_names: list, tree: Optional[list] = None,
+    server,
+    adata: AnnData,
+    actors: list,
+    actor_names: list,
+    tree: Optional[list] = None,
 ):
     """
     Generate standard Drawer for Spateo UI.
