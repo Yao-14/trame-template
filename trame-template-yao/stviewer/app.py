@@ -6,7 +6,7 @@ except ImportError:
 from typing import Optional
 
 from pyvista import BasePlotter
-
+from anndata import AnnData
 from .assets import asset_manager
 from .server import get_trame_server
 from .ui import (
@@ -20,6 +20,7 @@ from .ui import (
 
 def standard_html(
     plotter: BasePlotter,
+    adata: AnnData,
     actors: list,
     actor_names: list,
     tree: Optional[list] = None,
@@ -57,7 +58,7 @@ def standard_html(
         # -----------------------------------------------------------------------------
         with layout.drawer as dr:
             ui_standard_drawer(
-                server=server, actors=actors, actor_names=actor_names, tree=tree
+                server=server, adata=adata, actors=actors, actor_names=actor_names, tree=tree
             )
 
         # -----------------------------------------------------------------------------

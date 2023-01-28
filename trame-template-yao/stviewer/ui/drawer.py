@@ -8,7 +8,7 @@ from trame.widgets import vuetify
 from pyvista.plotting.colors import hexcolors
 import matplotlib.pyplot as plt
 from ..pv_pipeline import PVCB
-
+from anndata import AnnData
 
 def standard_tree(actors: list, actor_names: list, base_id: int = 0):
     for i, actor in enumerate(actors):
@@ -85,7 +85,7 @@ def card(title, actor_name):
     return content
 
 
-def standard_card_components(CBinCard, actor_name: str, default_values: dict):
+def standard_card_components(CBinCard, default_values: dict):
     with vuetify.VRow(classes="pt-2", dense=True):
         # Style
         with vuetify.VCol(cols="6"):
@@ -136,7 +136,7 @@ def standard_card_components(CBinCard, actor_name: str, default_values: dict):
 
 def standard_pc_card(CBinCard, actor_name: str, card_title: str, default_values: Optional[dict]=None):
     _default_values = {
-        "scalars": None,
+        "scalars": "None",
         "point_size": 5,
         "style": "points",
         "color": "gainsboro",
@@ -149,17 +149,16 @@ def standard_pc_card(CBinCard, actor_name: str, card_title: str, default_values:
 
     with card(title=card_title, actor_name=actor_name):
         with vuetify.VRow(classes="pt-2", dense=True):
-            """ with vuetify.VCol(cols="6"):
-                vuetify.VSelect(
-                    label="Scalars",
-                    v_model=(f"{actor_name}_scalars", _default_values["scalars"]),
-                    items=("scalars", ["cell_size", "cell_radius", None]),
+            with vuetify.VCol(cols="6"):
+                vuetify.VTextField(
+                    label="Genes",
+                    v_model=(CBinCard.SCALARS, _default_values["scalars"]),
+                    type="str",
                     hide_details=True,
                     dense=True,
                     outlined=True,
-                    classes="pt-1 ml-2",
-                    style="max-width: 250px",
-                )"""
+                    classes="pt-1",
+                )
             with vuetify.VCol(cols="6"):
                 vuetify.VSelect(
                     label="Colormap",
@@ -168,9 +167,10 @@ def standard_pc_card(CBinCard, actor_name: str, card_title: str, default_values:
                     hide_details=True,
                     dense=True,
                     outlined=True,
-                    classes="pt-1 ml-2",
-                    style="max-width: 250px",
+                    classes="pt-1",
                 )
+
+        standard_card_components(CBinCard=CBinCard, default_values=_default_values)
 
         vuetify.VSlider(
             v_model=(CBinCard.POINTSIZE, _default_values["point_size"]),
@@ -182,8 +182,6 @@ def standard_pc_card(CBinCard, actor_name: str, card_title: str, default_values:
             hide_details=True,
             dense=True,
         )
-
-        standard_card_components(CBinCard=CBinCard, actor_name=actor_name, default_values=_default_values)
 
 
 def standard_mesh_card(CBinCard, actor_name: str, card_title: str, default_values: Optional[dict]=None):
@@ -197,7 +195,7 @@ def standard_mesh_card(CBinCard, actor_name: str, card_title: str, default_value
         _default_values.update(default_values)
 
     with card(title=card_title, actor_name=actor_name):
-        standard_card_components(CBinCard=CBinCard, actor_name=actor_name, default_values=_default_values)
+        standard_card_components(CBinCard=CBinCard, default_values=_default_values)
 
 
 # -----------------------------------------------------------------------------
@@ -206,7 +204,7 @@ def standard_mesh_card(CBinCard, actor_name: str, card_title: str, default_value
 
 
 def ui_standard_drawer(
-    server, actors: list, actor_names: list, tree: Optional[list] = None,
+    server,  adata: AnnData, actors: list, actor_names: list, tree: Optional[list] = None,
 ):
     """
     Generate standard Drawer for Spateo UI.
@@ -219,7 +217,7 @@ def ui_standard_drawer(
     pipeline(server=server, actors=actors, actor_names=actor_names, tree=tree)
     vuetify.VDivider(classes="mb-2")
     for actor, actor_name in zip(actors, actor_names):
-        CBinCard = PVCB(server=server, actor=actor, actor_name=actor_name)
+        CBinCard = PVCB(server=server, actor=actor, actor_name=actor_name, adata=adata)
         if str(actor_name).startswith("PC"):
             standard_pc_card(CBinCard, actor_name=actor_name, card_title=actor_name)
         if str(actor_name).startswith("Mesh"):

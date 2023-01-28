@@ -1,5 +1,7 @@
 import io
 import pyvista as pv
+import numpy as np
+
 
 # -----------------------------------------------------------------------------
 # Common Callback-ToolBar&Container
@@ -220,7 +222,7 @@ class PVCB:
 class PVCB:
     """Callbacks for drawer based on pyvista."""
 
-    def __init__(self, server, actor, actor_name):
+    def __init__(self, server, actor, actor_name, adata):
         """Initialize PVCB."""
         state, ctrl = server.state, server.controller
         self._server = server
@@ -228,6 +230,7 @@ class PVCB:
         self._state = state
         self._actor = actor
         self._actor_name = actor_name
+        self._adata = adata
 
         # State variable names
         self.SCALARS = f"{actor_name}_scalars_value"
@@ -253,14 +256,34 @@ class PVCB:
         self._state.change(self.ASSPHERES)(self.on_as_spheres_change)
         self._state.change(self.ASTUBES)(self.on_as_tubes_change)
 
+    def get_model(self):
+        return self._actor.mapper.dataset
+
+    def get_adata(self):
+        return self._adata
+
     @vuwrap
     def on_scalars_change(self, **kwargs):
-        if self._state[self.SCALARS] is None:
+        if self._state[self.SCALARS] in ["none", "None", None]:
             self._actor.mapper.scalar_visibility = False
         else:
+            _adata = self._adata.copy()
+            _obs_index = self._actor.mapper.dataset.point_data["obs_index"]
+            _adata = _adata[_obs_index, :]
+
+            if self._state[self.SCALARS] in set(_adata.obs_keys()):
+                array = np.asarray(_adata.obs[self._state[self.SCALARS]].values).flatten()
+            elif self._state[self.SCALARS] in set(_adata.var_names.tolist()):
+                array = np.asarray(_adata[:, self._state[self.SCALARS]].X.sum(axis=1).flatten())
+                print(array)
+            else:
+                array = np.ones(shape=(len(_obs_index),))
+
+            self._actor.mapper.dataset.point_data[self._state[self.SCALARS]] = array
+            self._actor.mapper.SelectColorArray(self._state[self.SCALARS])
+            self._actor.mapper.lookup_table.SetRange(np.min(array), np.max(array))
+            self._actor.mapper.SetScalarModeToUsePointFieldData()
             self._actor.mapper.scalar_visibility = True
-            self._actor.mapper.dataset.set_active_scalars(self._state[self.SCALARS])
-            # self._actor.mapper.array_name = scalars
         self._ctrl.view_update()
 
     def on_opacity_change(self, **kwargs):

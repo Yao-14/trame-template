@@ -243,6 +243,8 @@ def update_contour_representation(contour_representation, **kwargs):
 def color_by_array(actor, array):
     _min, _max = array.get("range")
     mapper = actor.GetMapper()
+    print(array)
+    print(array.get("text"))
     mapper.SelectColorArray(array.get("text"))
     mapper.GetLookupTable().SetRange(_min, _max)
     if array.get("type") == vtkDataObject.FIELD_ASSOCIATION_POINTS:

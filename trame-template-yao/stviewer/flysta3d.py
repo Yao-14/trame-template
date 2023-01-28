@@ -131,6 +131,7 @@ def flysta3d_html(ui_name: str = "Flysta3D", **kwargs):
     # HTML
     server = standard_html(
         plotter=plotter,
+        adata=adata,
         actors=actors,
         actor_names=actor_names,
         tree=tree,
